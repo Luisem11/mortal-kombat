@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortal Kombat</title>
+</head>
+
+
+<body onload="init(); loadSound();" style="margin: 0;">
+    <div align="center" id="gameCanvas">
+        <canvas id="game-canvas"></canvas>
+    </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.3/pixi.min.js"
+    integrity="sha512-J7UHpLx39bpqtP+aWP6yIuXroFk0XPkDQaS9zDthM4TVeaXstWYh556gxsXwwIwpAPSoKqVHW+eqz3B93SpyKg=="
+    crossorigin="anonymous"></script>
+<script>
+    var fCanvas = false;
+    var w = 760;
+    var h = 478;
+    var isWalking = false;
+    var isWalkLock = false;
+    const ply2Movemets = [{
+        action: 'nothing',
+        time: 2000
+    }, {
+        action: 'move_right',
+        time: 1000
+    }, {
+        action: 'hit',
+        time: 800
+    }, {
+        action: 'move_right',
+        time: 1000
+    }, {
+        action: 'hit',
+        time: 800
+    }, {
+        action: 'nothing',
+        time: 500
+    }, {
+        action: 'hit',
+        time: 800
+    }, {
+        action: 'move_left',
+        time: 1000
+    }, {
+        action: 'hit',
+        time: 800
+    }, {
+        action: 'nothing',
+        time: 500
+    }, ]
+    var actualMov = 0;
+
+    //Aliases
+    let Application = PIXI.Application,
+        Container = PIXI.Container,
+        loader = PIXI.Loader.shared,
+        resources = PIXI.Loader.shared.resources,
+        TextureCache = PIXI.utils.TextureCache,
+        Text = PIXI.Text,
+        Sprite = PIXI.Sprite,
+        Rectangle = PIXI.Rectangle,
+        Graphics = PIXI.Graphics,
+        TilingSprite = PIXI.TilingSprite,
+        AnimatedSprite = PIXI.AnimatedSprite,
+        TextStyle = PIXI.TextStyle;
+
+    var app;
+    if (!PIXI.utils.isWebGLSupported()) {
+        console.log('Not Support')
+        fCanvas = true;
+    } else {
+        console.log('Supported')
+    }
+    loader
+        .add("atlas-scorpio.json")
+        .add("atlas-liukang.json")
+        .add("atlas-fatality.json")
+        .add("bg/bg0.jpg")
+        .add("bg/bg1.jpg")
+        .add("bg/bg2.jpg")
+        .add("bg/bg3.jpg")
+        .add("bg/bg4.jpg")
+        .add("bg/bg5.jpg")
+        .add("bg/bg6.jpg")
+        .add("bg/bg7.jpg")
+        .add("bar", "src/bar.gif")
+    loader.onProgress.add(loadProgressHandler)
+
+    function init() {
+        //Create a Pixi Application
+        app = new Application({
+            antialias: true,
+            transparent: false,
+            resolution: 1,
+            forceCanvas: fCanvas,
+            view: document.getElementById("game-canvas")
+        });
+        app.renderer.autoDensity = true;
+        app.renderer.resize(w, h);
+        loader.load(setup);
+    }
+
+    function loadProgressHandler(loader, resource) {
+
+        //Display the file `name` currently being loaded
+        //console.log("loading: " + resource.name);
+
+        //Display the percentage of files currently loaded
+        console.log("progress: " + loader.progress + "%");
+    }
+
+    function setup() {
+        sheet_scorpio = resources["atlas-scorpio.json"].spritesheet;
+        sheet_liu = resources["atlas-liukang.json"].spritesheet;
+        sheet_fatality = resources["atlas-fatality.json"].spritesheet;
+
+        //Create the `gameScene` group
+        gameScene = new Container();
+        app.stage.addChild(gameScene);
+
+        gameOverScene = new Container();
+
+        fatality = new AnimatedSprite(sheet_fatality.animations['fatallity']);
+        fatality.x = w / 2;
+        fatality.y = h / 2 - fatality.height;
+        fatality.animationSpeed = 0.1;
+        fatality.loop = false;
+        gameOverScene.addChild(fatality)
+
+        let bgImages = ["bg/bg0.jpg", "bg/bg1.jpg", "bg/bg2.jpg", "bg/bg3.jpg", "bg/bg4.jpg", "bg/bg5.jpg",
+            "bg/bg6.jpg", "bg/bg7.jpg"
+        ];
+        let textureArray = [];
+
+        for (let i = 0; i < bgImages.length; i++) {
+            let texture = resources[bgImages[i]].texture;
+            textureArray.push(texture);
+        };
+
+        bg = new AnimatedSprite(textureArray);
+        bg.animationSpeed = 0.13
+        bg.play()
+        gameScene.addChild(bg)
+
+        bar = new Sprite(resources.bar.texture)
+        containerBarPly1 = new Container();
+        rectangle = new Graphics();
+        rectangle.beginFill(0x9b0000);
+        rectangle.drawRect(3, bar.height * 0.20, 1, bar.height * 0.6);
+        rectangle.endFill();
+        containerBarPly1.addChild(bar);
+        containerBarPly1.addChild(rectangle);
+        containerBarPly1.x = 30 + containerBarPly1.width
+        containerBarPly1.y = 30
+        containerBarPly1.scale.x *= -1
+        gameScene.addChild(containerBarPly1)
+
+        bar2 = new Sprite(resources.bar.texture)
+        containerBarPly2 = new Container();
+        containerBarPly2.y = 30
+        rectangle2 = new Graphics();
+        rectangle2.beginFill(0x9b0000);
+        rectangle2.drawRect(3, bar2.height * 0.20, 1,
+            bar2.height * 0.6);
+        rectangle2.endFill();
+        containerBarPly2.addChild(bar2);
+        containerBarPly2.addChild(rectangle2);
+        containerBarPly2.x = w - 30 - containerBarPly2.width
+        gameScene.addChild(containerBarPly2)
+
+
+        createScorpion();
+        createLiuKang();
+
+        gameScene.addChild(liukang);
+        gameScene.addChild(scorpio);
+        movePlayer2();
+
+        keyboardListener()
+        //set the game state to `play`
+        state = play;
+
+        //Start the game loop 
+        app.ticker.add(delta => gameLoop(delta));
+    }
+
+    function gameLoop(delta) {
+
+        //Update the current game state:
+        state(delta);
+    }
+
+    function play(delta) {
+        scorpio.x += scorpio.vx
+        if (contain(scorpio, {
+                x: 0,
+                y: 0,
+                width: w,
+                height: h
+            })) {
+            scorpio.vx = 0;
+        }
+
+        liukang.x += liukang.vx
+        if (contain(liukang, {
+                x: 0,
+                y: 0,
+                width: w,
+                height: h
+            })) {
+            liukang.vx = 0;
+        }
+        if (rectangle2.width >= 160) {
+            gameOverScene.visible = true;
+            fatality.play();
+            playSound('fatality', 1);
+            playSound('end', 1);
+            app.stage.addChild(gameOverScene);
+            state = pause;
+        }
+    }
+
+    function pause(delta) {}
+
+    function createScorpion() {
+
+        scorpio = new Container();
+        scorpio_s = new AnimatedSprite(sheet_scorpio.animations['stance']);
+        scorpio_s.animationSpeed = 0.2;
+        scorpio_s.play();
+        scorpio_s.loop = true;
+        scorpio.addChild(scorpio_s)
+
+        scorpio_w = new AnimatedSprite(sheet_scorpio.animations['walking']);
+        scorpio_w.animationSpeed = 0.2;
+        scorpio_w.play();
+        scorpio_w.loop = true;
+        scorpio_w.visible = false;
+        scorpio.addChild(scorpio_w)
+
+        scorpio_k = new AnimatedSprite(sheet_scorpio.animations['kick']);
+        scorpio_k.animationSpeed = 0.2;
+        scorpio_k.loop = true;
+        scorpio_k.visible = false;
+        scorpio_k.onLoop = function () {
+            scorpio_k.stop();
+            scorpio_k.visible = false;
+            isWalkLock = false;
+            if (collision(scorpio.x, scorpio_k.width, liukang.x, -liukang.width)) {
+                liukang_s.visible = false;
+                liukang_w.visible = false;
+                liukang_k.visible = false;
+                liukang_h.visible = true;
+                liukang_h.play();
+                liukang.vx = 1;
+                playSound('hit1', 1)
+                rectangle2.width += 20;
+                rectangle2.x = -(rectangle2.width * 3) + 3
+            }
+            if (isWalking) {
+                scorpio_w.visible = true;
+            } else {
+                scorpio_s.visible = true;
+            }
+        };
+        scorpio.addChild(scorpio_k)
+        scorpio.y = h - scorpio.height - 25
+        scorpio.x = w / 3 - scorpio.width / 2
+        scorpio.vx = 0
+
+    }
+
+    function createLiuKang() {
+
+        liukang = new Container();
+        liukang_s = new AnimatedSprite(sheet_liu.animations['liu_stance']);
+        liukang_s.animationSpeed = 0.2;
+        liukang_s.play();
+        liukang_s.loop = true;
+        // liukang_s.visible = false;
+        liukang.addChild(liukang_s)
+
+        liukang_w = new AnimatedSprite(sheet_liu.animations['liu_walking']);
+        liukang_w.animationSpeed = 0.2;
+        liukang_w.play();
+        liukang_w.loop = true;
+        liukang_w.visible = false;
+        liukang.addChild(liukang_w)
+
+        liukang_k = new AnimatedSprite(sheet_liu.animations['liu_punching']);
+        liukang_k.animationSpeed = 0.2;
+        liukang_k.play();
+        liukang_k.loop = true;
+        liukang_k.visible = false;
+        liukang_k.onLoop = function () {
+            liukang_k.stop();
+            liukang_k.visible = false;
+            liukang_s.visible = true;
+        };
+        liukang.addChild(liukang_k)
+
+        liukang_h = new AnimatedSprite(sheet_liu.animations['liu_beaing_hit']);
+        liukang_h.animationSpeed = 0.2;
+        liukang_h.loop = true;
+        liukang_h.visible = false;
+        liukang_h.onLoop = function () {
+            liukang_h.stop();
+            liukang_h.visible = false;
+            liukang_s.visible = true;
+            liukang.vx = 0;
+        };
+        liukang.addChild(liukang_h)
+
+
+        liukang.y = h - liukang.height - 25
+        liukang.x = 2 * w / 3 - liukang.width / 2
+        liukang.vx = 0
+        liukang.scale.x *= -1;
+    }
+
+    function movePlayer2() {
+        let move = ply2Movemets[actualMov];
+        if (actualMov < ply2Movemets.length) {
+            switch (move.action) {
+                case 'move_right':
+                    liukang.vx = 1.6
+                    liukang_s.visible = false;
+                    liukang_w.visible = true;
+                    liukang_w.animationSpeed = -0.16;
+                    setTimeout(() => {
+                        liukang.vx = 0
+                        liukang_w.visible = false;
+                        liukang_s.visible = true;
+                        actualMov++
+                        movePlayer2();
+                    }, move.time);
+                    break;
+
+                case 'move_left':
+                    liukang.vx = -1.6
+                    liukang_s.visible = false;
+                    liukang_w.visible = true;
+                    liukang_w.animationSpeed = 0.16;
+                    setTimeout(() => {
+                        liukang.vx = 0
+                        liukang_w.visible = false;
+                        liukang_s.visible = true;
+                        actualMov++
+                        movePlayer2();
+                    }, move.time);
+                    break;
+
+                case 'hit':
+                    liukang_s.visible = false;
+                    liukang_w.visible = false;
+                    liukang_k.visible = true;
+                    liukang_k.play();
+                    playSound('haa_liu', 1)
+                    playSound('puño_liu', 0.5)
+                    setTimeout(() => {
+                        actualMov++
+                        movePlayer2();
+                    }, move.time);
+                    break;
+                case 'nothing':
+                    setTimeout(() => {
+                        actualMov++
+                        movePlayer2();
+                    }, move.time);
+                    break;
+
+                default:
+                    console.log('default');
+                    break;
+            }
+        }
+
+    }
+
+    function keyboardListener() {
+        let right = keyboard("ArrowRight"),
+            left = keyboard("ArrowLeft"),
+            space = keyboard(" "),
+            x = keyboard("x");
+
+        right.press = () => {
+            isWalking = true;
+            scorpio.vx = 2
+            if (!isWalkLock) {
+                scorpio_s.visible = false;
+                scorpio_w.visible = true;
+                scorpio_w.animationSpeed = 0.16;
+            }
+        };
+        right.release = () => {
+            isWalking = false;
+            scorpio.vx = 0
+            if (!isWalkLock) {
+                scorpio_s.visible = true;
+                scorpio_w.visible = false;
+            }
+
+        };
+        left.press = () => {
+            isWalking = true;
+            scorpio.vx = -2
+            if (!isWalkLock) {
+                scorpio_s.visible = false;
+                scorpio_w.visible = true;
+                scorpio_w.animationSpeed = -0.16;
+            }
+        };
+        left.release = () => {
+            isWalking = false;
+            scorpio.vx = 0
+            if (!isWalkLock) {
+                scorpio_s.visible = true;
+                scorpio_w.visible = false;
+            }
+        };
+        space.press = () => {
+
+            isWalkLock = true;
+            scorpio_s.visible = false;
+            scorpio_k.visible = true;
+            scorpio_w.visible = false;
+            scorpio_k.play();
+            playSound('haa', 1)
+            playSound('patada', 0.5)
+        };
+    }
+
+    function contain(sprite, container) {
+
+        let collision = undefined;
+
+        //Left
+        if (sprite.x < container.x) {
+            sprite.x = container.x;
+            collision = "left";
+        }
+
+        //Top
+        if (sprite.y < container.y) {
+            sprite.y = container.y;
+            collision = "top";
+        }
+
+        //Right
+        if (sprite.x + sprite.width > container.width) {
+            sprite.x = container.width - sprite.width;
+            collision = "right";
+        }
+
+        //Bottom
+        if (sprite.y + sprite.height > container.height) {
+            sprite.y = container.height - sprite.height;
+            collision = "bottom";
+        }
+
+        //Return the `collision` value
+        return collision;
+    }
+
+    function collision(x1, w1, x2, w2) {
+        if ((x1 + w1) >= x2 - w2) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function keyboard(value) {
+        let key = {};
+        key.value = value;
+        key.isDown = false;
+        key.isUp = true;
+        key.press = undefined;
+        key.release = undefined;
+        //The `downHandler`
+        key.downHandler = event => {
+            if (event.key === key.value) {
+                if (key.isUp && key.press) key.press();
+                key.isDown = true;
+                key.isUp = false;
+                event.preventDefault();
+            }
+        };
+
+        //The `upHandler`
+        key.upHandler = event => {
+            if (event.key === key.value) {
+                if (key.isDown && key.release) key.release();
+                key.isDown = false;
+                key.isUp = true;
+                event.preventDefault();
+            }
+        };
+
+        //Attach event listeners
+        const downListener = key.downHandler.bind(key);
+        const upListener = key.upHandler.bind(key);
+
+        window.addEventListener(
+            "keydown", downListener, false
+        );
+        window.addEventListener(
+            "keyup", upListener, false
+        );
+
+        // Detach event listeners
+        key.unsubscribe = () => {
+            window.removeEventListener("keydown", downListener);
+            window.removeEventListener("keyup", upListener);
+        };
+
+        return key;
+    }
+
+    function hitTestRectangle(r1, r2) {
+
+        //Define the variables we'll need to calculate
+        let hit, combinedHalfWidths, combinedHalfHeights, vx, vy;
+
+        //hit will determine whether there's a collision
+        hit = false;
+
+        //Find the center points of each sprite
+        r1.centerX = r1.x + r1.width / 2;
+        r1.centerY = r1.y + r1.height / 2;
+        r2.centerX = r2.x + r2.width / 2;
+        r2.centerY = r2.y + r2.height / 2;
+
+        //Find the half-widths and half-heights of each sprite
+        r1.halfWidth = r1.width / 2;
+        r1.halfHeight = r1.height / 2;
+        r2.halfWidth = r2.width / 2;
+        r2.halfHeight = r2.height / 2;
+
+        //Calculate the distance vector between the sprites
+        vx = r1.centerX - r2.centerX;
+        vy = r1.centerY - r2.centerY;
+
+        //Figure out the combined half-widths and half-heights
+        combinedHalfWidths = r1.halfWidth + r2.halfWidth;
+        combinedHalfHeights = r1.halfHeight + r2.halfHeight;
+
+        //Check for a collision on the x axis
+        if (Math.abs(vx) < combinedHalfWidths) {
+
+            //A collision might be occurring. Check for a collision on the y axis
+            if (Math.abs(vy) < combinedHalfHeights) {
+
+                //There's definitely a collision happening
+                hit = true;
+            } else {
+
+                //There's no collision on the y axis
+                hit = false;
+            }
+        } else {
+
+            //There's no collision on the x axis
+            hit = false;
+        }
+
+        //`hit` will be either `true` or `false`
+        return hit;
+    };
+
+    function onVisibilityChange(callback) {
+        var visible = true;
+
+        if (!callback) {
+            throw new Error('no callback given');
+        }
+
+        function focused() {
+            if (!visible) {
+                callback(visible = true);
+            }
+        }
+
+        function unfocused() {
+            if (visible) {
+                callback(visible = false);
+            }
+        }
+
+        // Standards:
+        if ('hidden' in document) {
+            document.addEventListener('visibilitychange',
+                function () {
+                    (document.hidden ? unfocused : focused)()
+                });
+        }
+        if ('mozHidden' in document) {
+            document.addEventListener('mozvisibilitychange',
+                function () {
+                    (document.mozHidden ? unfocused : focused)()
+                });
+        }
+        if ('webkitHidden' in document) {
+            document.addEventListener('webkitvisibilitychange',
+                function () {
+                    (document.webkitHidden ? unfocused : focused)()
+                });
+        }
+        if ('msHidden' in document) {
+            document.addEventListener('msvisibilitychange',
+                function () {
+                    (document.msHidden ? unfocused : focused)()
+                });
+        }
+        // IE 9 and lower:
+        if ('onfocusin' in document) {
+            document.onfocusin = focused;
+            document.onfocusout = unfocused;
+        }
+        // All others:
+        window.onpageshow = window.onfocus = focused;
+        window.onpagehide = window.onblur = unfocused;
+    };
+
+    onVisibilityChange(function (visible) {
+        if (!visible) {
+            state = pause;
+        } else {
+            state = play;
+        }
+    });
+</script>
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+<script>
+    function loadSound() {
+        createjs.Sound.registerSound("sounds/male/mk2-00603.mp3", 'haa');
+        createjs.Sound.registerSound("sounds/liukang/mk2-00244.mp3", 'haa_liu');
+        createjs.Sound.registerSound("sounds/hitsounds/mk2-00136.mp3", 'patada');
+        createjs.Sound.registerSound("sounds/hitsounds/mk2-00103.mp3", 'hit1');
+        createjs.Sound.registerSound("sounds/hitsounds/mk2-00139.mp3", 'puño_liu');
+        createjs.Sound.registerSound("sounds/hitsounds/mk2-00109.mp3", 'hit2');
+        createjs.Sound.registerSound("sounds/shaokahn/mk2-00948.mp3", 'fatality');
+        createjs.Sound.registerSound("sounds/musiccues/mk2-end1a.mp3", 'end');
+    }
+
+    function playSound(soundID, vol) {
+        var instance = createjs.Sound.play(soundID);
+        instance.volume = vol;
+    }
+</script>
+
+</html>
