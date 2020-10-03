@@ -10,12 +10,18 @@
 
 <body onload="init(); loadSound();" style="margin: 0;">
     <div align="center" id="gameCanvas">
-        <canvas id="game-canvas"></canvas>
+        <canvas id="game-canvas" ></canvas>
     </div>
+    <div>
+        <video id="camera"hidden></video>
+        <canvas id="videoCanvas"></canvas>
+    </div>
+
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.3.3/pixi.min.js"
     integrity="sha512-J7UHpLx39bpqtP+aWP6yIuXroFk0XPkDQaS9zDthM4TVeaXstWYh556gxsXwwIwpAPSoKqVHW+eqz3B93SpyKg=="
     crossorigin="anonymous"></script>
+
 <script>
     var fCanvas = false;
     var w = 760;
@@ -382,6 +388,54 @@
 
     }
 
+    function scorpio_right_press() {
+        isWalking = true;
+        scorpio.vx = 2
+        if (!isWalkLock) {
+            scorpio_s.visible = false;
+            scorpio_w.visible = true;
+            scorpio_w.animationSpeed = 0.16;
+        }
+    }
+
+    function scorpio_right_release() {
+        isWalking = false;
+        scorpio.vx = 0
+        if (!isWalkLock) {
+            scorpio_s.visible = true;
+            scorpio_w.visible = false;
+        }
+    }
+
+    function scorpio_left_press() {
+        isWalking = true;
+        scorpio.vx = -2
+        if (!isWalkLock) {
+            scorpio_s.visible = false;
+            scorpio_w.visible = true;
+            scorpio_w.animationSpeed = -0.16;
+        }
+    }
+
+    function scorpio_left_release() {
+        isWalking = false;
+        scorpio.vx = 0
+        if (!isWalkLock) {
+            scorpio_s.visible = true;
+            scorpio_w.visible = false;
+        }
+    }
+
+    function scorpio_space_press() {
+        isWalkLock = true;
+        scorpio_s.visible = false;
+        scorpio_k.visible = true;
+        scorpio_w.visible = false;
+        scorpio_k.play();
+        playSound('haa', 1)
+        playSound('patada', 0.5)
+    }
+
     function keyboardListener() {
         let right = keyboard("ArrowRight"),
             left = keyboard("ArrowLeft"),
@@ -389,49 +443,19 @@
             x = keyboard("x");
 
         right.press = () => {
-            isWalking = true;
-            scorpio.vx = 2
-            if (!isWalkLock) {
-                scorpio_s.visible = false;
-                scorpio_w.visible = true;
-                scorpio_w.animationSpeed = 0.16;
-            }
+            scorpio_right_press()
         };
         right.release = () => {
-            isWalking = false;
-            scorpio.vx = 0
-            if (!isWalkLock) {
-                scorpio_s.visible = true;
-                scorpio_w.visible = false;
-            }
-
+            scorpio_right_release()
         };
         left.press = () => {
-            isWalking = true;
-            scorpio.vx = -2
-            if (!isWalkLock) {
-                scorpio_s.visible = false;
-                scorpio_w.visible = true;
-                scorpio_w.animationSpeed = -0.16;
-            }
+            scorpio_left_press()
         };
         left.release = () => {
-            isWalking = false;
-            scorpio.vx = 0
-            if (!isWalkLock) {
-                scorpio_s.visible = true;
-                scorpio_w.visible = false;
-            }
+            scorpio_left_release()
         };
         space.press = () => {
-
-            isWalkLock = true;
-            scorpio_s.visible = false;
-            scorpio_k.visible = true;
-            scorpio_w.visible = false;
-            scorpio_k.play();
-            playSound('haa', 1)
-            playSound('patada', 0.5)
+            scorpio_space_press()            
         };
     }
 
@@ -653,5 +677,7 @@
         instance.volume = vol;
     }
 </script>
+<script src="js/opencv.js"></script>
+<script src="js/camera.js"></script>
 
 </html>
