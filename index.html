@@ -15,6 +15,7 @@
     <div>
         <video id="camera" hidden></video>
         <canvas id="videoCanvas"></canvas>
+        <img id="img">
         <div id="color">
             <div id="color-picker"></div>
         </div>
@@ -681,10 +682,18 @@
         instance.volume = vol;
     }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+
+<!-- Inicializacion de Sockets -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/socket.js"></script>
+
+<!-- Inicialización de scripts para camara -->
 <script src="js/opencv.js"></script>
 <script src="js/camera.js"></script>
+
+<!-- Inicialización de scripts para seleccion de color -->
+<script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
 <script src="js/color-picker.js"></script>
-<script src="js/socket.js"></script>
+
 
 </html>

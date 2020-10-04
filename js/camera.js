@@ -96,6 +96,14 @@ function processVideo() {
                 scorpio_right_release()
                 scorpio_left_release()
             }
+
+            // Emitir posiciones  de scorpion al servidor
+            data = {
+                x,
+                y,
+                id: socket.id
+            }
+            socket.emit('posiciones', data)
             
 
             let center = new cv.Point(x,y)
@@ -119,7 +127,7 @@ function processVideo() {
         console.log(contours)
     }
 
-    // socket.emit('videoStream', {id: socket.id, data: canvas.toDataURL('image/webp')})
+    socket.emit('videoStream', {id: socket.id, data: canvas.toDataURL('image/webp')})
 
     let delay = 1000/FPS - (Date.now() - begin);
     // console.log((Date.now() - begin)/1000)
