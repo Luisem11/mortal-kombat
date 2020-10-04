@@ -10,11 +10,15 @@
 
 <body onload="init(); loadSound();" style="margin: 0;">
     <div align="center" id="gameCanvas">
-        <canvas id="game-canvas" ></canvas>
+        <canvas id="game-canvas"></canvas>
     </div>
     <div>
-        <video id="camera"hidden></video>
+        <video id="camera" hidden></video>
         <canvas id="videoCanvas"></canvas>
+        <div id="color">
+            <div id="color-picker"></div>
+        </div>
+        <button id="picker" onclick="hiddenShowPicker()">Hidden Color picker</button>
     </div>
 
 </body>
@@ -58,7 +62,7 @@
     }, {
         action: 'nothing',
         time: 500
-    }, ]
+    },]
     var actualMov = 0;
 
     //Aliases
@@ -204,21 +208,21 @@
     function play(delta) {
         scorpio.x += scorpio.vx
         if (contain(scorpio, {
-                x: 0,
-                y: 0,
-                width: w,
-                height: h
-            })) {
+            x: 0,
+            y: 0,
+            width: w,
+            height: h
+        })) {
             scorpio.vx = 0;
         }
 
         liukang.x += liukang.vx
         if (contain(liukang, {
-                x: 0,
-                y: 0,
-                width: w,
-                height: h
-            })) {
+            x: 0,
+            y: 0,
+            width: w,
+            height: h
+        })) {
             liukang.vx = 0;
         }
         if (rectangle2.width >= 160) {
@@ -231,7 +235,7 @@
         }
     }
 
-    function pause(delta) {}
+    function pause(delta) { }
 
     function createScorpion() {
 
@@ -455,7 +459,7 @@
             scorpio_left_release()
         };
         space.press = () => {
-            scorpio_space_press()            
+            scorpio_space_press()
         };
     }
 
@@ -677,7 +681,10 @@
         instance.volume = vol;
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
 <script src="js/opencv.js"></script>
 <script src="js/camera.js"></script>
+<script src="js/color-picker.js"></script>
+<script src="js/socket.js"></script>
 
 </html>

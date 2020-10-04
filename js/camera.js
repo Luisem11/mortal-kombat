@@ -11,7 +11,12 @@ function activateCamera(message) {
     camera.play()
 }
 
-navigator.getUserMedia({video: true}, activateCamera, errorCamera)
+navigator.getUserMedia = (navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia || 
+    navigator.msGetUserMedia);
+
+navigator.getUserMedia({video: true, audio: false}, activateCamera, errorCamera)
 
 let canvas = document.getElementById('videoCanvas')
 let context = canvas.getContext('2d')
@@ -39,33 +44,39 @@ let contours = new cv.MatVector();
 let hierarchy= new cv.Mat();
 let begin = Date.now()
 let area = 0;
+let x = 0;
+let y = 0;
 function processVideo() {
     
+    // Mostrar la camara en un elemento canvas html
     context.drawImage(camera, 0, 0, canvas.width, canvas.height)
+
     src.data.set(context.getImageData(0, 0, canvas.width, canvas.height).data);
-    cv.cvtColor(src, dest2, cv.COLOR_RGB2HSV, 0)
-    // console.log(dest2);
-
-    cv.inRange(dest2, low, high, mask)
-    // cv.bitwise_and(src, src, dest2, mask)
-    // cv.cvtColor(src, dest, cv.COLOR_RGBA2GRAY);
     
+    // Rotar la camara horizontal
+    cv.flip(src, src, 1)
 
+    // Convertir los colores rbg en hsv, desde src a dest2
+    cv.cvtColor(src, dest2, cv.COLOR_RGB2HSV, 0)
+
+    // Aplicacion de la mascara de colores a dest2
+    cv.inRange(dest2, low, high, mask)
+
+    
+    // Obtención de los contornos del objeto haciendo una aproximación simple
     cv.findContours(mask, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE)
 
     for(let i  = 0; i < contours.size(); ++i) {
+        // Obtener el area de los contornos
         let cnt = contours.get(i)
         area = cv.contourArea(cnt, false)
+        // Lanzar golpe si el area del objeto es mayor a 10000
         if(area > 10000) {
-            // let keyEvent = new KeyboardEvent("eventKeyPress", {"keyCode": 32})
-            // console.log(keyEvent)
-            // let game = document.getElementById('game-canvas').dispatchEvent(keyEvent)
-            // console.log(area, i)
-            console.log("lanzar golpe")
-            console.log(area)
             scorpio_space_press()
         }
+        // Obtencion de las coordenadas si el area es mayor a 1500
         else if(area >1500) {
+            //Obtencion de la posicion en x e y del objeto en movimiento
             M = cv.moments(cnt, false);
             if(M.m00==0){
                 M.m00=1
@@ -74,13 +85,11 @@ function processVideo() {
             y = M.m01/M.m00
             x = Math.floor(x)
             y = Math.floor(y)
-            // console.log(x,y)
- 
-            if(x > 180){
+
+            if(x > 155){
                 scorpio_right_press()
-                console.log(x)
             }
-            else if(x < 120) {
+            else if(x < 95) {
                 scorpio_left_press()
             }
             else {
@@ -98,6 +107,10 @@ function processVideo() {
 
         }
         area = 0;
+        if(x < 0 || x >= canvas.width){
+            scorpio_right_release()
+            scorpio_left_release()
+        }
     }
     cv.imshow("videoCanvas", src)
 
