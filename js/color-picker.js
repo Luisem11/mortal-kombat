@@ -47,7 +47,6 @@ colorPicker.on('color:change', function (color) {
     hsv = color.hsv
     low = new cv.Mat(250, 250, 16, [hsv.h, hsv.s, hsv.v, 255]);
     high = new cv.Mat(250, 250, 16, [hsv.h+20, 255, 255, 255]);
-    console.log(hsv)
     hsv = JSON.stringify(hsv)
     localStorage.setItem("hsvColors", hsv)
 });

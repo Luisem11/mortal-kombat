@@ -15,5 +15,30 @@ socket.on("video", (data) => {
 // Reciben las posiciones del jugador 2
 socket.on('posiciones2', data => {
     // Hacer modificacione de las posiciones de liukan
-    console.log(data)
+    x = w - data.x;
+    y = data.y
+    
+    if(y < 55){
+        isWalking2 = true;
+        liukang_fist_press();     
+    }
+    else if(y > 195){
+        isWalking2 = true;
+        liukang_kick_press();
+    }
+    
+    liukangXPosition = getLiukangXPosition()
+
+    if(x < liukangXPosition){
+        //mover izquierda
+        liukang_left_press()
+    }
+    else if(x > liukangXPosition){
+        //Mover derecha
+        liukang_right_press()
+    }
+
+    liukang_position(x)
+    liukang_left_release()
+    liukang_right_release()
 })

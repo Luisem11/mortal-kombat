@@ -16,11 +16,11 @@
     <div>
         <video id="camera" hidden></video>
         <canvas id="videoCanvas"></canvas>
-        <img id="img">
         <div id="color">
             <div id="color-picker"></div>
         </div>
         <button id="picker" onclick="hiddenShowPicker()">Hidden Color picker</button>
+        <img id="img">
     </div>
 
 </body>
@@ -799,6 +799,25 @@
         liukang_k.visible = false;
         liukang_f.visible = false;
         liukang_h.visible = false;
+    }
+
+    function getScorpionXPosition(){
+        return scorpio.x;
+    }
+
+    function getLiukangXPosition(){
+        return liukang.x;
+    }
+
+    function liukang_position(x) {
+        liukang.x = x;
+        isWalking2 = true;
+        liukang.vx = -2
+        if (!isWalkLock2) {
+            liukang_s.visible = false;
+            liukang_w.visible = true;
+            liukang_w.animationSpeed = 0.16;
+        }
     }
 
     function keyboardListener() {

@@ -96,10 +96,16 @@ function processVideo() {
                 scorpio_right_release()
                 scorpio_left_release()
             }
+            if(y < 55){
+                scorpio_fist_press();        
+            }
+            else if(y > 195){
+                scorpio_space_press();
+            }
 
             // Emitir posiciones  de scorpion al servidor
             data = {
-                x,
+                x: getScorpionXPosition(),
                 y,
                 id: socket.id
             }
