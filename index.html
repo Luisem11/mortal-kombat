@@ -20,7 +20,9 @@
             <div id="color-picker"></div>
         </div>
         <button id="picker" onclick="hiddenShowPicker()">Hidden Color picker</button>
-        <img id="img">
+    </div>
+    <div>
+        <canvas id="videoCanvas2"></canvas>
     </div>
 
 </body>
@@ -667,7 +669,7 @@
         }
     }
 
-    function scorpio_space_press() {
+    function scorpio_kick_press() {
         isWalkLock = true;
         hideScorpio();
         scorpio_k.visible = true;
@@ -801,14 +803,6 @@
         liukang_h.visible = false;
     }
 
-    function getScorpionXPosition(){
-        return scorpio.x;
-    }
-
-    function getLiukangXPosition(){
-        return liukang.x;
-    }
-
     function liukang_position(x) {
         liukang.x = x;
         isWalking2 = true;
@@ -855,7 +849,7 @@
         };
         space.press = () => {
             if (state == play) {
-                scorpio_space_press()
+                scorpio_kick_press()
             }
         };
         x.press = () => {
@@ -1135,7 +1129,7 @@
 <script src="js/socket.js"></script>
 
 <!-- Inicialización de scripts para camara -->
-<script src="js/opencv.js"></script>
+<script src="https://docs.opencv.org/3.4.0/opencv.js"></script>
 <script src="js/camera.js"></script>
 
 <!-- Inicialización de scripts para seleccion de color -->
