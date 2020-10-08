@@ -5,16 +5,24 @@ const fs = require('fs');
 
 const app = express()
 
+const { PORT, ENVIRONMENT } = require('./config/environment')
+
+
 const options = {
     key: fs.readFileSync('./server/key.pem', 'utf8'),
     cert: fs.readFileSync('./server/server.crt', 'utf8')
 };
 
-const http = require('http').createServer(app)
+let http;
+if(ENVIRONMENT == 'dev') {
+    http = require('https').createServer(options, app)
+}
+else {
+    http = require('http').createServer(app)
+}
 
 require('./socket/index.js').socketServer(http)
 
-const { PORT } = require('./config/environment')
 
 
 app.use(morgan('tiny'))
