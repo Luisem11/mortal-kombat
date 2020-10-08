@@ -10,7 +10,7 @@ const options = {
     cert: fs.readFileSync('./server/server.crt', 'utf8')
 };
 
-const http = require('https').createServer(options, app)
+const http = require('http').createServer(app)
 
 require('./socket/index.js').socketServer(http)
 
