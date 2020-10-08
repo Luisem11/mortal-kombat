@@ -115,11 +115,6 @@ function processVideo() {
                 scorpio_kick_press();
             }
 
-            // Emitir posiciones  de scorpion al servidor
-            
-            // socket.emit('posiciones', data)
-
-
             let center = new cv.Point(x, y)
             let countorColor = new cv.Scalar(0, 255, 0)
             cv.circle(src, center, 7, countorColor)

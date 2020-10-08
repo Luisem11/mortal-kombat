@@ -11,15 +11,18 @@ canvas2.width = 250;
 context2.height = canvas2.height;
 context2.width = canvas2.width;
 
-// Recibe la trasmision del video del oponente
+// Recibe la trasmision del video y datos de las posiciones del oponente
 socket.on("video", (data) => {
+    // Se captura el elemento donde se va a mostrar el video
     let image = document.getElementById("img")
+    // Se asignan los datos de video a la fuente del elemento image
     image.src = data.data
 
+    // Se capturan los datos de la funciones que se deben realizar en x e y
     let moveX = data.x
     let moveY = data.y
 
-
+    // Se hace validacion de que elemento se debe realizar en la posicion x
     switch (moveX) {
         case 'right_press':
             liukang_left_press();
@@ -27,7 +30,6 @@ socket.on("video", (data) => {
 
         case 'right_release':
             liukang_left_release();
-            liukang_right_release();
             break;
 
         case 'left_press':
@@ -41,6 +43,7 @@ socket.on("video", (data) => {
         default:
             break;
     }
+    // Se hace validacion de que elemento se debe realizar en la posicion y
     switch (moveY) {
         case 'fist_press':
             liukang_fist_press();
@@ -54,33 +57,3 @@ socket.on("video", (data) => {
             break;
     }
 })
-
-
-// // Reciben las posiciones del jugador 2
-// socket.on('posiciones2', data => {
-//     // Hacer modificacione de las posiciones de liukan
-//     x = w - data.x;
-//     y = data.y
-
-//     if (y < 55) {
-//         isWalking2 = true;
-//         liukang_fist_press();
-//     } else if (y > 195) {
-//         isWalking2 = true;
-//         liukang_kick_press();
-//     }
-
-//     liukangXPosition = getLiukangXPosition()
-
-//     if (x < liukangXPosition) {
-//         //mover izquierda
-//         liukang_left_press()
-//     } else if (x > liukangXPosition) {
-//         //Mover derecha
-//         liukang_right_press()
-//     }
-
-//     liukang_position(x)
-//     liukang_left_release()
-//     liukang_right_release()
-// })
