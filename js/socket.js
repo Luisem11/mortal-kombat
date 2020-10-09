@@ -1,7 +1,7 @@
 const socket = io()
 
 socket.on('connect', () => {
-    console.log(socket.id);
+    console.log(socket);
 })
 
 let canvas2 = document.getElementById('videoCanvas2')
