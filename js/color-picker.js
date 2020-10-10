@@ -25,7 +25,7 @@ function hiddenShowPicker() {
 
 // Creacion del objeto para maniputar los colores
 let colorPicker = new iro.ColorPicker('#color-picker', {
-    width: 200,
+    width: 150,
     color: hsv ? hsv : '#ffffff',
     layoutDirection: "horizontal",
     layout: [
