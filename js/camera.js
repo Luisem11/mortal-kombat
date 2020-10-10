@@ -34,6 +34,33 @@ canvas.width = 250;
 context.height = canvas.height;
 context.width = canvas.width;
 
+//Creación de canvas2 para mostrar mascara
+let canvas2 = document.getElementById('videoCanvas2')
+let context2 = canvas2.getContext('2d')
+canvas2.height = 250;
+canvas2.width = 250;
+context2.height = canvas2.height;
+context2.width = canvas2.width;
+
+// Variables para definir el rango de movimiento en x e y
+let rangoAMoverX = 50
+let rangoAMoverY = 60
+
+// Definir posiciones para dibujar rectangulo
+let centroX = canvas2.height / 2;
+let centroY = canvas2.width / 2;
+
+// Rango de movimientos para x e y
+let posXDerecha = centroX + rangoAMoverX;
+let posXIzquierda = centroX - rangoAMoverX;
+let posYArriba = centroY + rangoAMoverY;
+let posYAbajo = centroY - rangoAMoverY;
+
+// Definicion de variables para generar rectangulo y visualizar el area donde el jugador esta qiero
+let point1 = new cv.Point(posXDerecha, posYArriba);
+let point2 = new cv.Point(posXIzquierda, posYAbajo);
+let colorRectangle = new cv.Scalar(0,180,100)
+
 // Se define la variable de origen del procesado de las imagenes
 let src = new cv.Mat(canvas.height, canvas.width, cv.CV_8UC4)
 // let dest = new cv.Mat(canvas.height, canvas.width, cv.CV_8UC1)
@@ -44,16 +71,20 @@ let dest2 = new cv.Mat(canvas.height, canvas.width, cv.CV_8UC1)
 let low = new cv.Mat(250, 250, 16, [50, 100, 20, 255]);
 let high = new cv.Mat(250, 250, 16, [60, 255, 255, 255]);
 
-
+// Variable para generar la mascara
 let mask = new cv.Mat(canvas.height, canvas.width, cv.CV_8UC4)
-
-
+// Definicion de variables para obtener el contorno
 let contours = new cv.MatVector();
 let hierarchy = new cv.Mat();
 
+// Definicion de variables en area y posiciones x e y
 let area = 0;
 let x = 0;
 let y = 0;
+
+let center = new cv.Point(x, y)
+let countorColor = new cv.Scalar(0, 255, 255)
+let color = new cv.Scalar(0,255,255);
 
 function processVideo() {
 
@@ -61,7 +92,7 @@ function processVideo() {
     context.drawImage(camera, 0, 0, canvas.width, canvas.height)
     src.data.set(context.getImageData(0, 0, canvas.width, canvas.height).data);
 
-    // Rotar la camara horizontal
+    // Rotar la camara horizontalmente
     cv.flip(src, src, 1)
 
     // Convertir los colores rbg en hsv, desde src a dest2
@@ -79,10 +110,7 @@ function processVideo() {
         // Obtener el area de los contornos
         let cnt = contours.get(i)
         area = cv.contourArea(cnt, false)
-        // Lanzar golpe si el area del objeto es mayor a 10000
-        // if (area > 10000) {
-        //     scorpio_kick_press()
-        // }
+
         // Obtencion de las coordenadas si el area es mayor a 1500
         if (area > 1500) {
             //Obtencion de la posicion en x e y del objeto en movimiento
@@ -94,12 +122,11 @@ function processVideo() {
             y = M.m01 / M.m00
             x = Math.floor(x)
             y = Math.floor(y)
-            
-            
-            if (x > 155) {
+                        
+            if (x > posXDerecha) {
                 moveX = "right_press"
                 scorpio_right_press()
-            } else if (x < 95) {
+            } else if (x < posXIzquierda) {
                 moveX = "left_press"
                 scorpio_left_press()
             } else {
@@ -107,19 +134,18 @@ function processVideo() {
                 scorpio_right_release()
                 scorpio_left_release()
             }
-            if (y < 55) {
+            if (y < posYAbajo) {
                 moveY = "fist_press"
                 scorpio_fist_press();
-            } else if (y > 195) {
+            } else if (y > posYArriba) {
                 moveY = "kick_press"
                 scorpio_kick_press();
             }
-
-            let center = new cv.Point(x, y)
-            let countorColor = new cv.Scalar(0, 255, 0)
+            // Creación del centro del objeto
+            center.x = x;
+            center.y = y
             cv.circle(src, center, 7, countorColor)
-            let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
-                Math.round(Math.random() * 255));
+            // Dibujar el contorno en la pantalla
             cv.drawContours(src, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
 
         }
@@ -129,17 +155,20 @@ function processVideo() {
             scorpio_left_release()
         }
     }
+    cv.rectangle(src, point1, point2, colorRectangle)
     cv.imshow("videoCanvas", src)
+    // cv.imshow("videoCanvas", dst)
+    cv.imshow("videoCanvas2", mask)
 
+    // Capturar datos de la camara como imagen
     let data = canvas.toDataURL('image/webp');
-
     data = {
         x: moveX,
         y: moveY,
         data: data,
         id: socket.id
     }
-
+    // Emitir la informacion de posiciones y de la camara al servidor
     socket.emit('videoStream', data)
 }
 

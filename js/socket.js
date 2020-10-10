@@ -4,13 +4,6 @@ socket.on('connect', () => {
     console.log(socket);
 })
 
-let canvas2 = document.getElementById('videoCanvas2')
-let context2 = canvas2.getContext('2d')
-canvas2.height = 250;
-canvas2.width = 250;
-context2.height = canvas2.height;
-context2.width = canvas2.width;
-
 // Recibe la trasmision del video y datos de las posiciones del oponente
 socket.on("video", (data) => {
     // Se captura el elemento donde se va a mostrar el video
