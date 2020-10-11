@@ -5,7 +5,7 @@ let hsv = localStorage.getItem("hsvColors");
 if(hsv) {
     hsv = JSON.parse(hsv)
     low = new cv.Mat(250, 250, 16, [hsv.h, hsv.s, hsv.v, 255]);
-    high = new cv.Mat(250, 250, 16, [hsv.h+10, 255, 255, 255]);
+    high = new cv.Mat(250, 250, 16, [hsv.h+25, 255, 255, 255]);
 }
 
 // Funcion para ocultar la selección de color

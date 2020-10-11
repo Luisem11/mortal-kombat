@@ -17,14 +17,12 @@
                 <div>
                     <video id="camera" hidden></video>
                     <canvas id="videoCanvas"></canvas>
-                    <!-- Descomentar la sigueinte linea si se quiere ver lo que la mascara esta detectando -->
-                    <!-- <canvas id="videoCanvas2"></canvas> -->
+                    <!-- Quitar el atributo hidden si se quiere ver lo que la mascara esta detectando -->
+                    <canvas id="videoCanvas2" hidden></canvas>
                     <div id="color">
                         <div id="color-picker" class="img-fluid"></div>
                     </div>
                     <button id="picker" onclick="hiddenShowPicker()">Hidden Color picker</button>
-
-                    <canvas id="videoCanvas2"></canvas>
                 </div>
             </div>
             <div class="col-8">
@@ -33,6 +31,7 @@
                 </div>
             </div>
             <div class="col-2 p-0">
+                <p>Oponente</p>
                 <img id="img" class="m-0 img-fluid">
             </div>
         </div>

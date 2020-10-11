@@ -86,6 +86,10 @@ let center = new cv.Point(x, y)
 let countorColor = new cv.Scalar(0, 255, 255)
 let color = new cv.Scalar(0,255,255);
 
+// Definición de kernel y posición desde la cual se dilatará la imagen
+let K = cv.Mat.ones(9, 9, cv.CV_8U);
+let anchor = new cv.Point(-1, -1);
+
 function processVideo() {
 
     // Mostrar la camara en un elemento canvas html
@@ -96,7 +100,7 @@ function processVideo() {
     cv.flip(src, src, 1)
 
     // Convertir los colores rbg en hsv, desde src a dest2
-    cv.cvtColor(src, dest2, cv.COLOR_RGB2HSV, 0)
+    cv.cvtColor(src, dest2, cv.COLOR_BGR2HSV, 0)
 
     // Aplicacion del rango de colores (low, high) para encontrar mascara
     cv.inRange(dest2, low, high, mask)
@@ -157,7 +161,11 @@ function processVideo() {
     }
     cv.rectangle(src, point1, point2, colorRectangle)
     cv.imshow("videoCanvas", src)
-    // cv.imshow("videoCanvas", dst)
+
+    // Reducir el ruido erocionando y dilatando la imagen
+    cv.erode(mask, mask, K, anchor, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
+    cv.dilate(mask, mask, K, anchor, 1, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
+
     cv.imshow("videoCanvas2", mask)
 
     // Capturar datos de la camara como imagen
