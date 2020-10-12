@@ -14,6 +14,9 @@ socket.on("video", (data) => {
     let image = document.getElementById("img")
     // Se asignan los datos de video a la fuente del elemento image
     image.src = data.data
+    if(!data.data) {
+        image.alt = "Jugador desconectado"
+    }
 
     // Se capturan los datos de la funciones que se deben realizar en x e y
     let moveX = data.x
