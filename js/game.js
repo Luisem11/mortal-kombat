@@ -1,7 +1,12 @@
 var fCanvas = false;
 var w = 760;
 var h = 478;
-var isWalking = false,
+var isCamReady = false,
+    isSockedReady = false,
+    isGameReady = false,
+    isColorReady = false,
+    isColorReady2 = false,
+    isWalking = false,
     isLocked = false,
     isHitLocked = false,
     isLocked2 = false,
@@ -41,6 +46,13 @@ const ply2Movemets = [{
     time: 500
 }, ]
 var actualMov = 0;
+var msgOnLoad = ['Cargando escenario',
+    'Debes seleccionar un color, cuando estes listo presiona el boton de ocultar',
+    'Esperando que se conecte otro jugador',
+    'Esperando que el otro jugador seleccione un color',
+    'Listo para jugar'
+]
+
 
 //Aliases
 let Application = PIXI.Application,
@@ -146,10 +158,11 @@ function setup() {
     keyboardListener();
 
     //set the game state to `play`
-    state = play; //movePlayer2();
+    state = pause; //movePlayer2();
 
     //Start the game loop 
     app.ticker.add(delta => gameLoop(delta));
+    updateState();
 }
 
 function gameLoop(delta) {
@@ -200,7 +213,26 @@ function play(delta) {
     }
 }
 
-function pause(delta) {}
+function pause(delta) {
+    if (isColorReady2 && isSockedReady && isColorReady) {
+        state = play;
+    }
+}
+
+function updateState() {
+    if (!isColorReady) {
+        document.getElementById('msg').innerHTML = msgOnLoad[1]
+    } else if (!isSockedReady) {
+        document.getElementById('msg').innerHTML = msgOnLoad[2]
+    } else if (!isColorReady2) {
+        document.getElementById('msg').innerHTML = msgOnLoad[3]
+    } else {
+        let element = document.getElementById('msg')
+        element.innerHTML = msgOnLoad[4];
+        element.classList.remove("alert-danger");
+        element.classList.add("alert-success");
+    }
+}
 
 function end(delta) {
     if ((fire_ball.y) > (scorpio.y + scorpio_finisher.height)) {
@@ -364,6 +396,7 @@ function createScorpion() {
     }
     scorpio_finisher.onFrameChange = function () {
         scorpio.y = h - scorpio.height - 25;
+        hideScorpio();
         if (scorpio_finisher.animationSpeed < 0 && scorpio_finisher.currentFrame == 5) {
             scorpio_finisher.stop();
         } else if (scorpio_finisher.currentFrame == 7) {

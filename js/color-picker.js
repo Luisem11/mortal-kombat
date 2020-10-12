@@ -2,21 +2,26 @@ let showItem = true;
 
 // Obtener colores desde el localStorage
 let hsv = localStorage.getItem("hsvColors");
-if(hsv) {
+if (hsv) {
     hsv = JSON.parse(hsv)
     low = new cv.Mat(250, 250, 16, [hsv.h, hsv.s, hsv.v, 255]);
-    high = new cv.Mat(250, 250, 16, [hsv.h+10, 255, 255, 255]);
+    high = new cv.Mat(250, 250, 16, [hsv.h + 10, 255, 255, 255]);
 }
 
 // Funcion para ocultar la selección de color
 function hiddenShowPicker() {
+
+    socket.emit('ready', {
+        id: socket.id
+    })
+    isColorReady = true;
+    updateState();
     let colorPicker = document.getElementById("color-picker");
     let picker = document.getElementById("picker")
     if (showItem) {
         colorPicker.style.display = "none"
         picker.innerText = "Show Color picker"
-    }
-    else {
+    } else {
         colorPicker.style.display = "block"
         picker.innerText = "Hidden Color picker"
     }
@@ -28,8 +33,7 @@ let colorPicker = new iro.ColorPicker('#color-picker', {
     width: 150,
     color: hsv ? hsv : '#ffffff',
     layoutDirection: "horizontal",
-    layout: [
-        {
+    layout: [{
             component: iro.ui.Wheel,
             options: {
                 sliderType: 'hue',
@@ -51,9 +55,8 @@ let colorPicker = new iro.ColorPicker('#color-picker', {
 colorPicker.on('color:change', function (color) {
     hsv = color.hsv
     low = new cv.Mat(250, 250, 16, [hsv.h, hsv.s, hsv.v, 255]);
-    high = new cv.Mat(250, 250, 16, [hsv.h+20, 255, 255, 255]);
+    high = new cv.Mat(250, 250, 16, [hsv.h + 20, 255, 255, 255]);
     hsv = JSON.stringify(hsv)
     // Guardado de colores seleccionados en el localStorage
     localStorage.setItem("hsvColors", hsv)
 });
-

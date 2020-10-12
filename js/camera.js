@@ -8,6 +8,7 @@ function errorCamera(error) {
 
 // Funcion para ejecutar la camara
 function activateCamera(message) {
+    isCamReady = true;
     camera.srcObject = message
     camera.height = 250;
     camera.width = 250;
@@ -59,7 +60,7 @@ let posYAbajo = centroY - rangoAMoverY;
 // Definicion de variables para generar rectangulo y visualizar el area donde el jugador esta qiero
 let point1 = new cv.Point(posXDerecha, posYArriba);
 let point2 = new cv.Point(posXIzquierda, posYAbajo);
-let colorRectangle = new cv.Scalar(0,180,100)
+let colorRectangle = new cv.Scalar(0, 180, 100)
 
 // Se define la variable de origen del procesado de las imagenes
 let src = new cv.Mat(canvas.height, canvas.width, cv.CV_8UC4)
@@ -84,7 +85,7 @@ let y = 0;
 
 let center = new cv.Point(x, y)
 let countorColor = new cv.Scalar(0, 255, 255)
-let color = new cv.Scalar(0,255,255);
+let color = new cv.Scalar(0, 255, 255);
 
 function processVideo() {
 
@@ -122,7 +123,7 @@ function processVideo() {
             y = M.m01 / M.m00
             x = Math.floor(x)
             y = Math.floor(y)
-                        
+
             if (x > posXDerecha) {
                 moveX = "right_press"
                 scorpio_right_press()
@@ -137,9 +138,20 @@ function processVideo() {
             if (y < posYAbajo) {
                 moveY = "fist_press"
                 scorpio_fist_press();
+                scorpio_right_release()
+                scorpio_left_release()
             } else if (y > posYArriba) {
                 moveY = "kick_press"
                 scorpio_kick_press();
+                scorpio_right_release()
+                scorpio_left_release()
+            }
+
+            if (area > 20000) {
+                moveY = "fist_press"
+                scorpio_fist_press();
+                scorpio_right_release()
+                scorpio_left_release()
             }
             // Creación del centro del objeto
             center.x = x;

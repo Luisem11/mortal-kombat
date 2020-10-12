@@ -6,6 +6,10 @@ socket.on('connect', () => {
 
 // Recibe la trasmision del video y datos de las posiciones del oponente
 socket.on("video", (data) => {
+    if (!isSockedReady) {
+        isSockedReady = true;
+        updateState();
+    }
     // Se captura el elemento donde se va a mostrar el video
     let image = document.getElementById("img")
     // Se asignan los datos de video a la fuente del elemento image
@@ -45,8 +49,12 @@ socket.on("video", (data) => {
         case 'kick_press':
             liukang_kick_press();
             break;
-    
+
         default:
             break;
     }
+})
+socket.on("ready", (data) => {
+    isColorReady2 = true;
+    updateState()
 })
