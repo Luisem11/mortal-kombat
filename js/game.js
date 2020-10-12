@@ -14,6 +14,15 @@ var isCamReady = false,
     isWalkLock = false,
     isWalking2 = false,
     isWalkLock2 = false;
+
+//Si se quieren omitir las condiciones iniciales descomentar el siguiente bloque
+/* 
+isCamReady = true;
+isSockedReady = true;
+isGameReady = true;
+isColorReady = true;
+isColorReady2 = true; */
+
 const ply2Movemets = [{
     action: 'nothing',
     time: 2000
@@ -52,6 +61,7 @@ var msgOnLoad = ['Cargando escenario',
     'Esperando que el otro jugador seleccione un color',
     'Listo para jugar'
 ]
+
 
 
 //Aliases
