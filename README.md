@@ -4,10 +4,10 @@ Juego inspirado en el juego arcade llamado Mortal Kombat II, adaptando los contr
 
 ## Librerías 
 
-[Opencv js](https://docs.opencv.org/4.5.0/d5/d10/tutorial_js_root.html)
-[Pixi js](https://www.pixijs.com/ "Pixi js")
-[Socket io js](https://socket.io/ "Socket.io")
-[Sound js](https://createjs.com/soundjs)
+* [Opencv js](https://docs.opencv.org/4.5.0/d5/d10/tutorial_js_root.html)
+* [Pixi js](https://www.pixijs.com/ "Pixi js")
+* [Socket io js](https://socket.io/ "Socket.io")
+* [Sound js](https://createjs.com/soundjs)
 
 ## Requisitos
 
@@ -23,4 +23,4 @@ Juego inspirado en el juego arcade llamado Mortal Kombat II, adaptando los contr
 
 `npm run serve
 `
-* Abrir un navegador con la direccion https://localhost:4000
+* Abrir un navegador con la dirección https://localhost:4000
