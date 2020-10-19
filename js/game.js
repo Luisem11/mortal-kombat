@@ -15,13 +15,13 @@ var isCamReady = false,
     isWalking2 = false,
     isWalkLock2 = false;
 
-//Si se quieren omitir las condiciones iniciales descomentar el siguiente bloque
-/* 
+//Si se quieren agregar las condiciones iniciales comentar el siguiente bloque
+
 isCamReady = true;
 isSockedReady = true;
 isGameReady = true;
 isColorReady = true;
-isColorReady2 = true; */
+isColorReady2 = true;
 
 const ply2Movemets = [{
     action: 'nothing',
